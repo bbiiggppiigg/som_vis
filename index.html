@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-			<title>Visualization - HW4</title>
+			<title>SOM Visualization</title>
 			<script type="text/javascript" src="d3/d3.min.js"></script>
     	<style type="text/css">
     		.grid .tick {
@@ -24,6 +24,15 @@
     <body>
 
         <script type="text/javascript">
+        var mapSize = 200;
+        function getRandomColor() {
+		    var letters = '0123456789ABCDEF'.split('');
+		    var color = '#';
+		    for (var i = 0; i < 6; i++ ) {
+		        color += letters[Math.floor(Math.random() * 16)];
+		    }
+		    return color;
+		}
 			// your code goes in here
 
 			// load data and draw a line graph
@@ -35,9 +44,9 @@
 				});
 				var mapping = [];
 				var newData = [];
-				for (var i =0 ; i <= 300; i++){
+				for (var i =0 ; i <= mapSize; i++){
 					mapping[i] = [];
-					for (var j =0;j<= 300;j++){
+					for (var j =0;j<= mapSize;j++){
 						mapping[i][j] = [];
 						if(mapping[i][j].length!=0)
 							console.log(mapping[i][j]);
@@ -47,8 +56,8 @@
 					d = parsedData[key];
 					mapping[d[1]][d[2]].push(d[0]);
 				}
-				for (var i =0;i<=300;i++){
-					for (var j=0;j<=300;j++){
+				for (var i =0;i<=mapSize;i++){
+					for (var j=0;j<=mapSize;j++){
 						if(mapping[i][j].length!=0)
 							//console.log(mapping[i][j]);
 							newData.push([mapping[i][j],[i],[j]]);
@@ -82,7 +91,7 @@
 									d3.max(data,function(d){
 										return d[1];
 									})
-							]*/[0,300]
+							]*/[0,mapSize]
 							);
 
 				var yScale = d3.scale.linear().range([height, 0]).domain(
@@ -91,7 +100,7 @@
 								//console.log(d[1]);
 								return d[2];})
 						]*/
-						[0,300]
+						[0,mapSize]
 					);
 				// create a line generator that reflects the trajectory of the data
 				
@@ -118,7 +127,7 @@
 					d = data[i]
 					//console.log(data[i]);
 					chart.append("circle").attr("cx",xScale(d[1])).attr("cy",yScale(d[2])).attr("r",d[0].length*3+1)
-										  .attr("word",d[0]).on("mouseover",function(d){
+										  .attr("word",d[0]).attr("fill",getRandomColor()).on("mouseover",function(d){
 										  	hh = d3.select(this)[0][0].getAttribute("word");
 										  	tooltip.transition().style("opacity",.9); 
 										  	d3.select(this).transition().style('fill','yellow');
@@ -155,7 +164,7 @@
 				.style("font-size","16px")
 				.style("text-decoration","underline")
 				.style("font-family","sans-serif")
-				.text("World Population");
+				.text("Self Organizing map");
 				chart.append("g")
 							.attr("transform","translate(0,"+height+")")
 							.call(make_x_axis()

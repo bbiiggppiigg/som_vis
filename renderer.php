@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+			<title>SOM Visualization</title>
+			<script type="text/javascript" src="d3/d3.min.js"></script>
+    	<style type="text/css">
+    		.grid .tick {
+			    stroke: lightgrey;
+			    opacity: 0.7;
+			}
+			.grid path {
+			      stroke-width: 0;
+			}
+			.grid .tick {
+			    stroke: lightgrey;
+			    opacity: 0.7;
+			}
+			.grid path {
+			      stroke-width: 0;
+			}
+    	</style>
+    </head>
+    <body>
+
+        <script type="text/javascript">
+        var mapSize = <?php echo $_GET['map_size']; ?>;
+        function getRandomColor() {
+		    var letters = '0123456789ABCDEF'.split('');
+		    var color = '#';
+		    for (var i = 0; i < 6; i++ ) {
+		        color += letters[Math.floor(Math.random() * 16)];
+		    }
+		    return color;
+		}
+			// your code goes in here
+
+			// load data and draw a line graph
+			d3.csv(<?php echo "\"out/".$_GET['filename']."\""; ?>, function(data) {
+				var parsedData = data.map(function(d) {
+					//console.log(d);
+					//console.log([ d['word'], parseInt(d['x']), parseInt(d['y']) ]);
+					return [ d['word'], +parseInt(d['x']), +parseInt(d['y']) ];
+				});
+				var mapping = [];
+				var newData = [];
+				for (var i =0 ; i <= mapSize; i++){
+					mapping[i] = [];
+					for (var j =0;j<= mapSize;j++){
+						mapping[i][j] = [];
+						if(mapping[i][j].length!=0)
+							console.log(mapping[i][j]);
+					}
+				}
+				for (var key in parsedData){
+					d = parsedData[key];
+					mapping[d[1]][d[2]].push(d[0]);
+				}
+				for (var i =0;i<=mapSize;i++){
+					for (var j=0;j<=mapSize;j++){
+						if(mapping[i][j].length!=0)
+							//console.log(mapping[i][j]);
+							newData.push([mapping[i][j],[i],[j]]);
+					}
+				}
+				//console.log(mapping);
+				// console.log(parsedData); // uncomment to check the parsedData
+				drawLineGraph(newData);
+				//drawBarGraph(parsedData);		
+			});
+			
+			function drawLineGraph(data) {	
+				var tooltip = d3.select("body").append("div").style("position","absolute").style("padding","0 10px").style("background","skyblue").style("opacity",0);
+				// set the dimension for the graph
+				var	margin = {top: 100, right: 50, bottom: 30, left: 100};
+				var width = 800- margin.left - margin.right;
+				var height = 600 - margin.top - margin.bottom;
+				// add a <div> into <body> and add an SVG element to <div>
+							
+				var chart = d3.select("body").append("div").attr("name","line").append("svg").attr("width",width+margin.left+margin.right).attr("height",height+margin.top+margin.bottom).append("g").attr("transform","translate("+margin.left+","+margin.top+")");
+								
+				// create xScale and yScale functions
+				
+				var xScale = d3.scale.linear()
+								.range([0, width])
+								.domain(
+							/*		[
+									d3.min(data,function(d){
+										return d[1];
+									}),
+									d3.max(data,function(d){
+										return d[1];
+									})
+							]*/[0,mapSize]
+							);
+
+				var yScale = d3.scale.linear().range([height, 0]).domain(
+						/*[
+							0,d3.max(data,function(d){ 
+								//console.log(d[1]);
+								return d[2];})
+						]*/
+						[0,mapSize]
+					);
+				// create a line generator that reflects the trajectory of the data
+				
+				
+				//console.log(lineGenerator(data));
+				function make_x_axis() {        
+				    return d3.svg.axis()
+				        .scale(xScale)
+				         .orient("bottom")
+				         .ticks(1000)
+				}
+
+				function make_y_axis() {        
+				    return d3.svg.axis()
+				        .scale(yScale)
+				        .orient("left")
+				        .ticks(10)
+				}									
+				//chart.append("path").attr("d",lineGenerator(data)).style("stroke","steelblue").style("stroke-width",2).style("fill","none");
+				// add the line to the SVG element				
+				//chart.append("circle").attr("d",circleGenerator(data));
+				console.log(data);
+				for (i in data){
+					d = data[i]
+					//console.log(data[i]);
+					chart.append("circle").attr("cx",xScale(d[1])).attr("cy",yScale(d[2])).attr("r",d[0].length*3+1)
+										  .attr("word",d[0]).attr("fill",getRandomColor()).on("mouseover",function(d){
+										  	hh = d3.select(this)[0][0].getAttribute("word");
+										  	tooltip.transition().style("opacity",.9); 
+										  	d3.select(this).transition().style('fill','yellow');
+										  	tooltip.html(hh).style('left',d3.event.pageX+'px').style('top',(d3.event.pageY)+'px');})
+										  .on('mouseout',function(d) {
+										  	d3.select(this).transition().style('fill','black');
+										  });
+;	
+				}
+				//chart.append("circle").attr("cx",xScale(300)).attr("cy",yScale(300)).attr("r",20);	
+				var xAxis = d3.svg.axis()
+							.scale(xScale)
+							.orient("bottom")
+							.ticks(10)
+							.tickFormat(d3.format("0000"));
+				
+				var yAxis = d3.svg.axis()
+							.scale(yScale)
+							.orient("left")
+							.ticks(10)
+							.tickFormat(d3.format("0000"));
+				
+				chart.append("g")
+							.attr("transform","translate(0,"+height+")")
+							.call(xAxis);
+				
+				chart.append("g").call(yAxis);
+				// Part Three
+				chart
+				.append("text")
+				.attr("x",width/2)
+				.attr("y",0-margin.top/2)
+				.attr("text-anchor","midddle")
+				.style("font-size","16px")
+				.style("text-decoration","underline")
+				.style("font-family","sans-serif")
+				.text("Self Organizing map");
+				chart.append("g")
+							.attr("transform","translate(0,"+height+")")
+							.call(make_x_axis()
+				            .tickSize(height, 0, 0)
+				            .tickFormat("")
+				            );
+				console.log(-height);
+				chart.append("g")         
+			        .attr("class", "grid")
+			        .call(make_y_axis()
+			            .tickSize(-width, 0, 0)
+			            .tickFormat("")
+			        );
+				console.log(-width);
+			}
+        </script>
+    </body>
+</html> 

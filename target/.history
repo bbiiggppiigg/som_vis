@@ -1,0 +1,73 @@
+exit
+compile
+som
+WordClusterSOM
+run
+compile
+run
+scalac
+compile 
+compile
+run
+sbt clean compile "WordClusterSOM"
+compile "WordClusterSOM"
+compile
+run
+build
+some
+set
+exit
+compile
+run
+compile
+run
+compile
+run
+compile
+run
+compile
+run
+compile
+run
+compile & run
+compile 
+run
+compile 
+run
+compile
+run
+compile
+run
+compile
+run
+compile
+run tt.out ttt.out
+compile
+run tt.out ttt.out
+compile
+run
+run 1
+run 2
+compile
+run
+ls
+run temp.out tt.out
+run temp.out tt.out 200
+compile
+last *:update
+version
+sbtVersion
+compile
+exit
+compile
+exit
+compile
+package
+exit
+compile
+package
+exit
+compile
+exit
+package
+exit
